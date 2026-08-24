@@ -4,6 +4,7 @@ const cors = require('cors');
 
 const authRoutes = require('./routes/auth');
 const incidentRoutes = require('./routes/incidents');
+const userRoutes = require('./routes/users');
 const categoryRoutes = require('./routes/categories');
 
 const app = express();
@@ -14,6 +15,7 @@ app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/incidents', incidentRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/categories', categoryRoutes);
 
 const PORT = process.env.PORT || 3000;

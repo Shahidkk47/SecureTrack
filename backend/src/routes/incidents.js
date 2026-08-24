@@ -94,6 +94,69 @@ router.patch('/:id/status', requireAuth, requireRole('admin', 'manager'), async 
     }
 });
 
+// PATCH /api/incidents/{id}/severity — update severity (FR-03) — admin/manager only (NFR-02)
+router.patch('/:id/severity', requireAuth, requireRole('admin', 'manager'), async (req, res) => {
+    const { severity } = req.body;
+    const validSeverities = ['Low', 'Medium', 'High', 'Critical'];
+    if (!validSeverities.includes(severity)) {
+        return res.status(400).json({ error: `severity must be one of: ${validSeverities.join(', ')}` }); // TC-04 checks this
+    }
+
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+        const result = await client.query(
+            `UPDATE incidents SET severity = $1, updated_at = now() WHERE id = $2 RETURNING *`,
+            [severity, req.params.id]
+        );
+        if (result.rows.length === 0) {
+            await client.query('ROLLBACK');
+            return res.status(404).json({ error: 'Incident not found' });
+        }
+        const incident = result.rows[0];
+        await writeAuditLog(client, incident.id, req.user.id, 'SEVERITY_CHANGED', `Severity set to ${severity}`);
+        await client.query('COMMIT');
+        res.json(incident); // TC-04: severity persists correctly
+    } catch (err) {
+        await client.query('ROLLBACK');
+        console.error(err);
+        res.status(500).json({ error: 'Internal server error' });
+    } finally {
+        client.release();
+    }
+});
+
+// PATCH /api/incidents/{id}/assign — assign/escalate to staff (FR-04) — admin/manager only (NFR-02)
+router.patch('/:id/assign', requireAuth, requireRole('admin', 'manager'), async (req, res) => {
+    const { assigned_user_id } = req.body;
+    if (!assigned_user_id) {
+        return res.status(400).json({ error: 'assigned_user_id is required' });
+    }
+
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+        const result = await client.query(
+            `UPDATE incidents SET assigned_user_id = $1, updated_at = now() WHERE id = $2 RETURNING *`,
+            [assigned_user_id, req.params.id]
+        );
+        if (result.rows.length === 0) {
+            await client.query('ROLLBACK');
+            return res.status(404).json({ error: 'Incident not found' });
+        }
+        const incident = result.rows[0];
+        await writeAuditLog(client, incident.id, req.user.id, 'ASSIGNED', `Assigned to user ${assigned_user_id}`);
+        await client.query('COMMIT');
+        res.json(incident); // FR-04: assigned_user_id updates and is visible on incident detail
+    } catch (err) {
+        await client.query('ROLLBACK');
+        console.error(err);
+        res.status(500).json({ error: 'Internal server error' });
+    } finally {
+        client.release();
+    }
+});
+
 // GET /api/incidents — list/report, admin only (FR-07) — this is what TC-08 tests against
 router.get('/', requireAuth, requireRole('admin', 'manager'), async (req, res) => {
     const { from, to, status } = req.query;

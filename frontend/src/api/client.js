@@ -55,4 +55,27 @@ export const api = {
         const qs = new URLSearchParams(params).toString();
         return request(`/api/incidents${qs ? `?${qs}` : ''}`);
     },
+
+    // FR-03: update severity (admin/manager only) — this is what TC-04 checks
+    updateSeverity: (id, severity) =>
+        request(`/api/incidents/${id}/severity`, { method: 'PATCH', body: JSON.stringify({ severity }) }),
+
+    // FR-04: assign/escalate incident to a staff member (admin/manager only)
+    assignIncident: (id, assigned_user_id) =>
+        request(`/api/incidents/${id}/assign`, { method: 'PATCH', body: JSON.stringify({ assigned_user_id }) }),
+
+    // FR-04: list staff for the assignment dropdown (admin/manager only)
+    listUsers: () => request('/api/users'),
+
+    // Read the logged-in user's role straight out of the JWT (no extra API call needed)
+    getRole: () => {
+        const token = getToken();
+        if (!token) return null;
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            return payload.role;
+        } catch {
+            return null;
+        }
+    },
 };
