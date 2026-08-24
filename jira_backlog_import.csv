@@ -1,0 +1,22 @@
+Issue Type,Epic Name,Summary,Description,Sprint,Owner,Requirement,Story Points,Acceptance Criteria
+Epic,Database Schema,Database Schema,Create the 5-table PostgreSQL schema,Sprint 1,Shakeel,FR-08 / NFR-01,,
+Story,Database Schema,Create users table,Migration for users with bcrypt password_hash and role column,Sprint 1,Shakeel,NFR-01/NFR-02,2,Migration runs clean; role CHECK constraint enforced
+Story,Database Schema,Create incidents/categories/attachments/audit_logs tables,Full ERD migration with FKs and indexes,Sprint 1,Shakeel,FR-08,3,All 5 tables created; FKs indexed; audit_logs insert-only trigger active
+Epic,Authentication,Authentication,Signup/login with hashed passwords and JWT,Sprint 1,Shakeel,NFR-01,,
+Story,Authentication,Build POST /api/auth/signup,Hash password with bcrypt before storing,Sprint 1,Shakeel,NFR-01,2,"Password stored as bcrypt hash, not plaintext (TC-07)"
+Story,Authentication,Build POST /api/auth/login,Issue JWT on valid credentials,Sprint 1,Shakeel,NFR-01/NFR-02,2,Valid login returns JWT; invalid login returns 401
+Epic,Incident Submission and Tracking,Incident Submission and Tracking,Core incident lifecycle,Sprint 2,Rehman,FR-01/FR-02/FR-03/FR-04/FR-05,,
+Story,Incident Submission and Tracking,Build incident submission form (React),Form posts description/category/attachment,Sprint 2,Rehman,FR-01/NFR-05,3,Non-technical user completes submission in under 3 minutes
+Story,Incident Submission and Tracking,Build POST /api/incidents,Create incident with unique ID and timestamp,Sprint 2,Shakeel,FR-01/FR-02,3,"New incident gets unique UUID, status defaults to New (TC-01, TC-03)"
+Story,Incident Submission and Tracking,Add severity field handling,Admin can set severity Low/Medium/High/Critical,Sprint 2,Shakeel,FR-03,2,Severity persists correctly (TC-04)
+Story,Incident Submission and Tracking,Add assignment logic,Assign/escalate incident to staff member,Sprint 2,Shakeel,FR-04,2,assigned_user_id updates and is visible on incident detail
+Story,Incident Submission and Tracking,Build GET /api/incidents/:id,View incident detail,Sprint 2,Rehman,FR-05,2,Returns correct incident with current status
+Epic,Notifications and Reporting,Notifications and Reporting,Status change notifications and admin reporting,Sprint 3,Rehman,FR-06/FR-07,,
+Story,Notifications and Reporting,Build PATCH /api/incidents/:id/status,Restricted to admin/manager role,Sprint 3,Shakeel,FR-05/FR-06/NFR-02,3,Status updates; non-admin gets 403 (TC-05, TC-08)
+Story,Notifications and Reporting,Wire email notification on status change,Send email to reporter when status changes,Sprint 3,Rehman,FR-06,3,Email received on test status change (TC-06)
+Story,Notifications and Reporting,Build GET /api/incidents list/report,"Filter by from/to date, status",Sprint 3,Rehman,FR-07,3,Admin can pull filtered report; employee gets 403
+Epic,Test Fix Deploy,Test Fix Deploy,Run full test suite and deploy to staging,Sprint 4,Shakeel/Rehman,All FR/NFR,,
+Story,Test Fix Deploy,Execute TC-01 to TC-10 against live system,Record actual vs expected results,Sprint 4,Shakeel/Rehman,All,5,All 10 test cases have logged actual results
+Story,Test Fix Deploy,Verify audit log immutability at DB level,Confirm UPDATE/DELETE on audit_logs is rejected,Sprint 4,Shakeel,FR-08,2,Trigger rejects UPDATE/DELETE (TC-09)
+Story,Test Fix Deploy,Deploy to staging environment,Deploy backend+frontend to free-tier cloud,Sprint 4,Shakeel,NFR-04,3,App reachable via public staging URL
+Story,Test Fix Deploy,Accessibility check against WCAG 2.2 AA,Run automated scanner + manual screen-reader pass,Sprint 4,Rehman,NFR-07,2,No critical WCAG AA violations; issues logged if found
