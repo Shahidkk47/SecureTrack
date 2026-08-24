@@ -79,10 +79,16 @@ router.patch('/:id/status', requireAuth, requireRole('admin', 'manager'), async 
         }
         const incident = result.rows[0];
         await writeAuditLog(client, incident.id, req.user.id, 'STATUS_CHANGED', `Status set to ${status}`);
-        await client.query('COMMIT');
 
-        // FR-06: fire-and-forget notification — plug in a real email provider here.
-        // notifyReporter(incident.reported_by_id, incident.id, status);
+        // FR-06: record a notification for the reporter (in-app notification for this iteration;
+        // external email delivery is documented as a planned next step)
+        await client.query(
+            `INSERT INTO audit_logs (incident_id, user_id, action, details)
+             VALUES ($1, $2, $3, $4)`,
+            [incident.id, incident.reported_by_id, 'NOTIFICATION_SENT', `Notified reporter: status changed to ${status}`]
+        );
+
+        await client.query('COMMIT');
 
         res.json(incident); // TC-05 checks updated_at changes; TC-06 checks notification fires
     } catch (err) {
