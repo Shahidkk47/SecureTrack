@@ -70,6 +70,9 @@ export const api = {
     // FR-04: list staff for the assignment dropdown (admin/manager only)
     listUsers: () => request('/api/users'),
 
+    // Categories for the incident submission form
+    getCategories: () => request('/api/categories'),
+
     // Read the logged-in user's role straight out of the JWT (no extra API call needed)
     getRole: () => {
         const token = getToken();

@@ -9,13 +9,9 @@ export default function ReportIncident({ onCreated }) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    api.listIncidents; // no-op reference to keep eslint quiet if unused elsewhere
     (async () => {
       try {
-        const res = await fetch('http://localhost:3000/api/categories', {
-          headers: { Authorization: `Bearer ${localStorage.getItem('securetrack_token')}` },
-        });
-        const data = await res.json();
+        const data = await api.getCategories();
         setCategories(data);
         if (data.length) setCategoryId(data[0].id);
       } catch {
