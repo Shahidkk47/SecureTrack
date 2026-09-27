@@ -8,7 +8,9 @@ const userRoutes = require('./routes/users');
 const categoryRoutes = require('./routes/categories');
 
 const app = express();
-app.use(cors());
+// FRONTEND_URL should be set to your deployed frontend (e.g. https://securetrack.vercel.app).
+// Falls back to allowing all origins for local development.
+app.use(cors({ origin: process.env.FRONTEND_URL || '*' }));
 app.use(express.json());
 
 app.get('/health', (req, res) => res.json({ status: 'ok' }));

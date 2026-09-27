@@ -9,14 +9,15 @@ const SALT_ROUNDS = 12;
 
 // POST /api/auth/signup
 router.post('/signup', async (req, res) => {
-    const { full_name, email, password, role } = req.body;
+    const { full_name, email, password } = req.body;
 
-    if (!full_name || !email || !password || !role) {
-        return res.status(400).json({ error: 'full_name, email, password, and role are required' });
+    if (!full_name || !email || !password) {
+        return res.status(400).json({ error: 'full_name, email, and password are required' });
     }
-    if (!['employee', 'admin', 'manager'].includes(role)) {
-        return res.status(400).json({ error: 'role must be employee, admin, or manager' });
-    }
+    // FIX (DEFECT-01): role is never taken from client input. Every self-signup
+    // account is created as 'employee'; promotion to admin/manager is done by
+    // an existing admin via PATCH /api/users/:id/role (requireRole('admin')).
+    const role = 'employee';
 
     try {
         const password_hash = await bcrypt.hash(password, SALT_ROUNDS); // NFR-01, checked by TC-07

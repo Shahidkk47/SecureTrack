@@ -67,7 +67,9 @@ ICT503 Assessment 2 (Project Audit Review), matching the Assessment 1 design.
 # TC-01 / TC-07: signup, then confirm the DB stores a bcrypt hash, not plaintext
 curl -X POST http://localhost:3000/api/auth/signup \
   -H "Content-Type: application/json" \
-  -d '{"full_name":"Shakeel Adnan","email":"shakeel@test.com","password":"Test1234!","role":"admin"}'
+  -d '{"full_name":"Shakeel Adnan","email":"shakeel@test.com","password":"Test1234!"}'
+# -> account is always created as role "employee"; promote it with an existing
+# admin's token: PATCH /api/users/:id/role  { "role": "admin" }
 
 # then in psql / SQL editor:
 # SELECT password_hash FROM users WHERE email='shakeel@test.com';

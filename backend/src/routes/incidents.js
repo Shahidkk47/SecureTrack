@@ -51,7 +51,15 @@ router.get('/:id', requireAuth, async (req, res) => {
         if (result.rows.length === 0) {
             return res.status(404).json({ error: 'Incident not found' });
         }
-        res.json(result.rows[0]);
+        const incident = result.rows[0];
+        // FIX (DEFECT-02 / IDOR): an employee may only view an incident they
+        // reported. Admin/manager (triage staff) may view any incident.
+        const isOwner = incident.reported_by_id === req.user.id;
+        const isStaff = ['admin', 'manager'].includes(req.user.role);
+        if (!isOwner && !isStaff) {
+            return res.status(403).json({ error: 'Forbidden: you may only view incidents you reported' });
+        }
+        res.json(incident);
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Internal server error' });

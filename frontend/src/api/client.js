@@ -1,6 +1,8 @@
 // Central place for every call to the backend (Sprint 1 API).
-// Change this if your backend runs on a different port.
-const API_BASE = 'http://localhost:3000';
+// In production (Vercel), set VITE_API_URL to your deployed backend URL
+// (e.g. https://securetrack-backend.onrender.com). Locally it falls back
+// to your dev backend on port 3000.
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 function getToken() {
     return localStorage.getItem('securetrack_token');
