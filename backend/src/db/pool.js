@@ -8,6 +8,10 @@ const pool = new Pool({
     user: process.env.DB_USER || 'postgres',
     password: process.env.DB_PASSWORD || 'postgres',
     database: process.env.DB_NAME || 'securetrack',
+    // Neon (and most managed Postgres hosts) require SSL. Local Postgres does not.
+    ssl: (process.env.DB_HOST && process.env.DB_HOST !== 'localhost')
+        ? { rejectUnauthorized: false }
+        : false,
 });
 
 module.exports = pool;

@@ -21,6 +21,10 @@ app.use('/api/users', userRoutes);
 app.use('/api/categories', categoryRoutes);
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`SecureTrack backend listening on port ${PORT}`));
+// On Vercel, the platform imports `app` as a serverless handler - it must not
+// call app.listen() itself. Locally (or on Render), we still want a normal server.
+if (!process.env.VERCEL) {
+    app.listen(PORT, () => console.log(`SecureTrack backend listening on port ${PORT}`));
+}
 
 module.exports = app;
